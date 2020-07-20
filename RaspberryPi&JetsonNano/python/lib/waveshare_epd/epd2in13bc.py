@@ -42,36 +42,37 @@ class EPD:
         self.cs_pin = epdconfig.CS_PIN
         self.width = EPD_WIDTH
         self.height = EPD_HEIGHT
+        self.config = epdconfig.RaspberryPi()
 
     # Hardware reset
     def reset(self):
-        epdconfig.digital_write(self.reset_pin, 1)
-        epdconfig.delay_ms(200) 
-        epdconfig.digital_write(self.reset_pin, 0)
-        epdconfig.delay_ms(10)
-        epdconfig.digital_write(self.reset_pin, 1)
-        epdconfig.delay_ms(200)   
+        self.config.digital_write(self.reset_pin, 1)
+        self.config.delay_ms(200)
+        self.config.digital_write(self.reset_pin, 0)
+        self.config.delay_ms(10)
+        self.config.digital_write(self.reset_pin, 1)
+        self.config.delay_ms(200)
 
     def send_command(self, command):
-        epdconfig.digital_write(self.dc_pin, 0)
-        epdconfig.digital_write(self.cs_pin, 0)
-        epdconfig.spi_writebyte([command])
-        epdconfig.digital_write(self.cs_pin, 1)
+        self.config.digital_write(self.dc_pin, 0)
+        self.config.digital_write(self.cs_pin, 0)
+        self.config.spi_writebyte([command])
+        self.config.digital_write(self.cs_pin, 1)
 
     def send_data(self, data):
-        epdconfig.digital_write(self.dc_pin, 1)
-        epdconfig.digital_write(self.cs_pin, 0)
-        epdconfig.spi_writebyte([data])
-        epdconfig.digital_write(self.cs_pin, 1)
+        self.config.digital_write(self.dc_pin, 1)
+        self.config.digital_write(self.cs_pin, 0)
+        self.config.spi_writebyte([data])
+        self.config.digital_write(self.cs_pin, 1)
         
     def ReadBusy(self):
         logging.debug("e-Paper busy")
-        while(epdconfig.digital_read(self.busy_pin) == 0):      # 0: idle, 1: busy
-            epdconfig.delay_ms(100)
+        while(self.config.digital_read(self.busy_pin) == 0):      # 0: idle, 1: busy
+            self.config.delay_ms(100)
         logging.debug("e-Paper busy release")
 
     def init(self):
-        if (epdconfig.module_init() != 0):
+        if (self.config.module_init() != 0):
             return -1
             
         self.reset()
@@ -154,6 +155,7 @@ class EPD:
         self.send_command(0x07) # DEEP_SLEEP
         self.send_data(0xA5) # check code
         
-        epdconfig.module_exit()
+        self.config.module_exit()
+        self.config = None
 ### END OF FILE ###
 
